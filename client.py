@@ -7,19 +7,38 @@ import sys
 class Client():
 
     def __init__(self, client_port):
-        self.server_port = 8888
-        self.identifier = None
+        self.identifier = client_port
+        self.server_tcp = ('127.0.0.1', 8889)
         self.server_listener = SocketThread(
-            self, client_port, self.server_port)
+            self, client_port, self.server_tcp)
         self.server_listener.start()
 
 
+    def send_play(self, play):
+        message = json.dumps({
+          "action": "play",
+          "payload": play,
+          "player_id": self.identifier
+        })
+        print(message)
+        self.sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock_tcp.connect(self.server_tcp)
+        print('sending message')
+        self.sock_tcp.send(message.encode())
+        print('message sent')
+        data = self.sock_tcp.recv(1024)
+        self.sock_tcp.close()
+        message = self.parse_data(data)
+
+        return message
+
+
 class SocketThread(Thread):
-    def __init__(self, client, client_port, server_port):
+    def __init__(self, client, client_port, server_tcp):
         Thread.__init__(self)
         self.client = client
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect(('127.0.0.1', server_port))
+        self.sock.connect(server_tcp)
 
     def run(self):
         while True:
@@ -29,21 +48,25 @@ class SocketThread(Thread):
                 data = json.loads(data)
                 print(data)
             finally:
-                sock.close()
-                print('ok boomer')
+                self.sock.close()
 
 
 if __name__ == '__main__':
-    client = Client(9999)
+    if sys.argv[1]:
+      client = Client(sys.argv[1])
+    else:
+      client = Client(9999)
+
     while True:
 
         cmd = input('> ')
 
         if cmd.startswith('play'):
-            print('pelaa :)')
+            client.send_play(cmd[5:])
         elif cmd.startswith('msg'):
-            print('message')
+            client.send_msg(cmd[4:])
         elif cmd.startswith('pmsg'):
-            print('play and message')
+            client.send_play(cmd[5:6])
+            client.send_msg(cmd[6:])
         else:
             print('Invalid command')
