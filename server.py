@@ -12,6 +12,7 @@ class GameServer(Thread):
 
     def run(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(('0.0.0.0', self.port))
         self.sock.listen()
         print('asdasdasdasd')
@@ -19,22 +20,15 @@ class GameServer(Thread):
             print('in while')
             conn, addr = self.sock.accept()
             print('sock accepting')
-            data = conn.recv(10024)
-            print('data recieved')
-            data = json.loads(data)
-            print('data loaded')
-
+            data = conn.recv(1024)
+            parsed_data = data.decode('utf-8').replace("'", '"')
             print(data)
+            print('data recieved')
+#            parsed_data = json.loads(data)
+            print('data loaded')
+            print(parsed_data)
 
 
 if __name__ == '__main__':
-    GameServer().run()
+    server = GameServer().start()
 
-
-'''
-    {
-      user: 'Olli',
-      msg: 'Hey you',
-      play: 'rock',
-    }
-'''
