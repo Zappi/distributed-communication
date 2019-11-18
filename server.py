@@ -15,20 +15,18 @@ class GameServer(Thread):
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(('0.0.0.0', self.port))
         self.sock.listen()
-        print('asdasdasdasd')
+
         while True:
-            print('in while')
             conn, addr = self.sock.accept()
-            print('sock accepting')
+
             data = conn.recv(1024)
-            parsed_data = data.decode('utf-8').replace("'", '"')
-            print(data)
-            print('data recieved')
-#            parsed_data = json.loads(data)
-            print('data loaded')
+            parsed_data = json.loads(data)
+
             print(parsed_data)
+
+            message = json.dumps({"success": "True", "message": "message recieved"})
+            conn.send(message.encode())
 
 
 if __name__ == '__main__':
     server = GameServer().start()
-
