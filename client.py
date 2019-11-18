@@ -16,8 +16,6 @@ class Client():
         self.server_listener.start()
         self.server_message = []
 
-
-
     def send_msg(self, action, play = None, msg = None):
         message = json.dumps({
           "action": action,
@@ -53,6 +51,7 @@ class Client():
         return set(message)
 
 class SocketThread(Thread):
+
     def __init__(self, client, client_port, server_tcp, lock):
         
         Thread.__init__(self)
@@ -62,16 +61,14 @@ class SocketThread(Thread):
         self.lock = lock
         self.time_reference = time.time()
 
-
     def run(self):
+
         while True:
           data, addr = self.sock.recvfrom(1024)
           self.lock.acquire()
-          print(data)
           try:
             self.client.server_message.append(data)
-            if self.time_reference + 5 < time.time():
-                self.print_messages()
+            self.print_messages()
           finally:
             self.lock.release()
 

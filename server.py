@@ -34,9 +34,15 @@ class GameServer(Thread):
             sock.send(message.encode())
         elif data['action'] == 'play':
             self.game.recieve_play(data)
+            message = json.dumps({"success": "True", "message": "Play recieved succesfully"})
+            sock.send(message.encode())
         elif data['action'] == 'msg':
             for player in self.game.players.values():
-                player.send_message(data)
+                if player.player_id != data['player_id']:
+                    player.send_message(data)
+            message = json.dumps({"success": "True", "message": "Message sent to other player"})
+            sock.send(message.encode())
+
 
 
 class Game():
@@ -47,6 +53,9 @@ class Game():
     def register_player(self, addr, player_id):
         player = Player(addr, player_id)
         self.players[player_id] = player
+
+    def recieve_play(self, play):
+        print('recived play')
 
 class Player():
 
@@ -59,7 +68,6 @@ class Player():
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(json.dumps({data['player_id']: data['message']}).encode(), self.udp_addr)
         print('Message sent to clients')
-
 
 if __name__ == '__main__':
     server = GameServer().start()
