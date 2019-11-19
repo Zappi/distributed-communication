@@ -27,7 +27,6 @@ class Client():
         self.sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock_tcp.connect(self.server_tcp)
         self.sock_tcp.send(message.encode())
-        print('message sent')
         data = self.sock_tcp.recv(1024)
         self.sock_tcp.close()
         message = self.parse_data(data)
@@ -83,24 +82,36 @@ class SocketThread(Thread):
 
 
 if __name__ == '__main__':
+    log = []
     if sys.argv[1]:
       client = Client(sys.argv[1])
     else:
       client = Client(9999)
     
-    print("Send a play with 'play <num>' \n"
+    print("Join a game with 'join' \n"
+          "Send a play with 'play <num>' \n"
           "1 = rock, 2 = paper, 3 = scissors \n" 
           "Send a message with 'msg <message>'\n"
-          "Send a play and message with 'pmsg <num> <message>")
+          "Send a play and message with 'pmsg <num> <message> \n"
+          "Print the log of this session with 'log'")
 
     while True:
         cmd = input('> ')
 
-        if cmd.startswith('play'):
+        if cmd.startswith('join'):
+            client.send_msg('join')
+            log.append(('join'))
+        elif cmd.startswith('play'):
             client.send_msg('play', cmd[5:])
+            log.append(('play', cmd[5:]))
         elif cmd.startswith('msg'):
             client.send_msg('msg', None, cmd[4:])
+            log.append(('message', cmd[4:]))
         elif cmd.startswith('pmsg'):
             client.send_msg('pmsg', cmd[5:6], cmd[6:])
+            log.append(('play and message', cmd[5:6], cmd[6:]))
+        elif cmd.startswith('log'):
+            for entry in log:
+                print(entry)
         else:
             print('Invalid command')
