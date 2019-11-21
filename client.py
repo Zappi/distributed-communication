@@ -16,12 +16,12 @@ class Client():
         self.server_listener.start()
         self.server_message = []
 
-    def send_msg(self, action, play = None, msg = None):
+    def send_msg(self, action, play=None, msg=None):
         message = json.dumps({
-          "action": action,
-          "payload": play,
-          "message": msg,
-          "player_id": self.identifier
+            "action": action,
+            "payload": play,
+            "message": msg,
+            "player_id": self.identifier
         })
 
         self.sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,10 +49,11 @@ class Client():
         self.server_message = []
         return set(message)
 
+
 class SocketThread(Thread):
 
     def __init__(self, client, client_port, server_tcp, lock):
-        
+
         Thread.__init__(self)
         self.client = client
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -63,13 +64,13 @@ class SocketThread(Thread):
     def run(self):
 
         while True:
-          data, addr = self.sock.recvfrom(1024)
-          self.lock.acquire()
-          try:
-            self.client.server_message.append(data)
-            self.print_messages()
-          finally:
-            self.lock.release()
+            data, addr = self.sock.recvfrom(1024)
+            self.lock.acquire()
+            try:
+                self.client.server_message.append(data)
+                self.print_messages()
+            finally:
+                self.lock.release()
 
     def print_messages(self):
 
@@ -78,19 +79,19 @@ class SocketThread(Thread):
             for message in messages:
                 message = json.loads(message)
                 sender, value = message.popitem()
-                print(sender," : ", value)
+                print(sender, " : ", value)
 
 
 if __name__ == '__main__':
     log = []
     if sys.argv[1]:
-      client = Client(sys.argv[1])
+        client = Client(sys.argv[1])
     else:
-      client = Client(9999)
-    
+        client = Client(9999)
+
     print("Join a game with 'join' \n"
           "Send a play with 'play <num>' \n"
-          "1 = rock, 2 = paper, 3 = scissors \n" 
+          "1 = rock, 2 = paper, 3 = scissors \n"
           "Send a message with 'msg <message>'\n"
           "Send a play and message with 'pmsg <num> <message> \n"
           "Print the log of this session with 'log'")
@@ -102,8 +103,8 @@ if __name__ == '__main__':
             client.send_msg('join')
             log.append(('join'))
         elif cmd.startswith('play'):
-            client.send_msg('play', cmd[5:])
-            log.append(('play', cmd[5:]))
+            client.send_msg('play', cmd[5:].strip())
+            log.append(('play', cmd[5:].strip()))
         elif cmd.startswith('msg'):
             client.send_msg('msg', None, cmd[4:])
             log.append(('message', cmd[4:]))
