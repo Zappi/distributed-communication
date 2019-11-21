@@ -26,10 +26,18 @@ class Client():
 
         self.sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock_tcp.connect(self.server_tcp)
-        self.sock_tcp.send(message.encode())
-        data = self.sock_tcp.recv(1024)
-        self.sock_tcp.close()
-        message = self.parse_data(data)
+ 
+        if action == 'test':
+            self.sock_tcp.send(message.encode())
+            time.sleep(1)
+            for i in range(50000):
+                self.sock_tcp.send(message.encode())
+            self.sock_tcp.close()
+        else:
+            self.sock_tcp.send(message.encode())
+            data = self.sock_tcp.recv(1024)
+            self.sock_tcp.close()
+            message = self.parse_data(data)
 
         print(message)
 
@@ -94,7 +102,8 @@ if __name__ == '__main__':
           "1 = rock, 2 = paper, 3 = scissors \n"
           "Send a message with 'msg <message>'\n"
           "Send a play and message with 'pmsg <num> <message> \n"
-          "Print the log of this session with 'log'")
+          "Print the log of this session with 'log' \n"
+          "Test the network with 50000 messages with 'test'")
 
     while True:
         cmd = input('> ')
@@ -114,5 +123,7 @@ if __name__ == '__main__':
         elif cmd.startswith('log'):
             for entry in log:
                 print(entry)
+        elif cmd.startswith('test'):
+            client.send_msg('test')
         else:
             print('Invalid command')

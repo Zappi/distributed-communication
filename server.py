@@ -2,6 +2,7 @@ import socket
 from threading import Thread, Lock
 import sys
 import json
+import time
 
 
 def server_loop():
@@ -36,7 +37,13 @@ class GameServer(Thread):
             data = conn.recv(1024)
             parsed_data = json.loads(data)
 
-            self.interpret_message(parsed_data, conn, addr)
+            if parsed_data['action'] == 'test':
+                time_reference = time.time()
+                for i in range(49999):
+                    data = conn.recv(1024)
+                print(time.time() - time_reference - 1)
+            else:
+                self.interpret_message(parsed_data, conn, addr)
 
     def interpret_message(self, data, sock, addr):
 
@@ -123,7 +130,6 @@ class Game():
                 })
 
     def compare_results(self, first_player, second_player):
-        print(self.players)
         self.server.print_logs()
         if (first_player['payload'] == '1' and second_player['payload'] == '2') or (first_player['payload'] == '2' and second_player['payload'] == '3') or (first_player['payload'] == '1' and second_player['payload'] == '3'):
             self.winners.append(second_player['player_id'])
