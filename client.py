@@ -6,7 +6,9 @@ import time
 
 
 class Client():
-
+    """
+    Client is initialized with client_port as a parameter
+    """
     def __init__(self, client_port):
         self.identifier = client_port
         self.server_tcp = ('127.0.0.1', 8889)
@@ -16,6 +18,9 @@ class Client():
         self.server_listener.start()
         self.server_message = []
 
+    """
+    Used to send messages to the server.
+    """
     def send_msg(self, action, play=None, msg=None):
         message = json.dumps({
             "action": action,
@@ -26,7 +31,11 @@ class Client():
 
         self.sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock_tcp.connect(self.server_tcp)
- 
+        """
+        If the action is test then the client sends a message 50000 amounts to the server
+        to measure how long it takes for the messages to arrive. The sleep is so that the
+        server can prepare to accept messages.
+        """
         if action == 'test':
             self.sock_tcp.send(message.encode())
             time.sleep(1)
@@ -41,6 +50,10 @@ class Client():
 
         print(message)
 
+    """
+    Parses messages from the server if the succes code is True. If not raises an Exception
+    """
+
     def parse_data(self, data):
         try:
             data = json.loads(data)
@@ -50,7 +63,9 @@ class Client():
                 raise Exception(data['message'])
         except ValueError:
             print(data)
-
+    """
+    Gets servers messages to print
+    """
     def get_messages(self):
 
         message = self.server_message
@@ -60,6 +75,10 @@ class Client():
 
 class SocketThread(Thread):
 
+    """
+    Initializes SocketThread which is used to listen to the servers messages.
+    Initialized with servers address.
+    """
     def __init__(self, client, client_port, server_tcp, lock):
 
         Thread.__init__(self)
@@ -68,6 +87,10 @@ class SocketThread(Thread):
         self.sock.bind(("0.0.0.0", int(client_port)))
         self.lock = lock
         self.time_reference = time.time()
+
+    """
+    Recieves messages from the server and then prints them
+    """
 
     def run(self):
 
@@ -89,9 +112,15 @@ class SocketThread(Thread):
                 sender, value = message.popitem()
                 print(sender, " : ", value)
 
+"""
+Initializes the client and log-array. If a port isn't supplied as an arg it defaults to port 9999.
+Waits for messages that are used for the application from the user.
+"""
 
 if __name__ == '__main__':
+
     log = []
+
     if sys.argv[1]:
         client = Client(sys.argv[1])
     else:
