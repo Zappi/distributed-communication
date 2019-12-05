@@ -1,0 +1,108 @@
+INITIALIZER:
+    from Tkinter import *
+    from DWatchGUI import DWatchGUI
+  
+
+    root = Tk()
+    root.title("Super Cool Clock")
+    g = DWatchGUI(root, eventhandler)
+
+    eventhandler.start()
+
+    root.mainloop()
+    exit()
+
+STATECHART:
+    Time [CS][DS]
+      Run [DS]
+      Stop 
+    Light [CS][DS]
+      On
+      Off [DS]
+    Chrono [CS][DS]
+      On
+      Off [DS]
+    Refresh [CS][DS]
+      Time [DS]
+      Chrono    
+      
+#TIME CONTROL 
+TRANSITION:
+    S: Time.Run
+    N: Time.Run
+    T: 1
+    O: g.increaseTimeByOne()
+
+#LIGHT CONTROL      
+TRANSITION:
+    S: Light.Off
+    N: Light.On
+    E: lightOn
+    O: g.setIndiglo()
+
+TRANSITION:
+    S: Light.On
+    N: Light.Off
+    T: 2 
+    O: g.unsetIndiglo()
+     
+#CHRONO CONTROL
+TRANSITION:
+    S: Chrono.Off
+    N: Chrono.On
+    E: initChrono
+
+TRANSITION:
+    S: Chrono.On
+    N: Chrono.On
+    T: 0.25
+    O: g.increaseChronoByOne()
+
+TRANSITION:
+    S: Chrono.On
+    N: Chrono.Off
+    E: initChrono
+
+TRANSITION:
+    S: Chrono.Off
+    N: Chrono.Off
+    E: resetChrono
+    O: g.resetChrono()
+
+ 
+#REFRESH CONTROL
+
+TRANSITION:
+    S: Refresh.Time
+    N: Refresh.Time
+    T: 0.05
+    O: g.refreshTimeDisplay()
+
+TRANSITION:
+    S: Refresh.Chrono
+    N: Refresh.Chrono
+    T: 0.05
+    O:  g.refreshChronoDisplay()
+
+TRANSITION:
+    S: Refresh.Time
+    N: Refresh.Chrono
+    E: changeMode
+    O:  g.refreshChronoDisplay()
+
+TRANSITION:
+    S: Refresh.Chrono
+    N: Refresh.Time
+    E: changeMode
+    O: g.refreshTimeDisplay()
+
+TRANSITION:
+    S: Refresh.Time
+    N: Refresh.Stop
+    E: editTimeEvent
+
+TRANSITION:
+    S: Refresh.Stop
+    N: Refresh.Time
+    E: editTimeEvent
+    O: g.stopSelection()

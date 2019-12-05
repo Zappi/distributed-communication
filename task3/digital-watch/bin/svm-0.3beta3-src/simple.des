@@ -1,0 +1,41 @@
+INITIALIZER:
+    from Tkinter import *
+    from gui import GUI
+    
+    root = Tk()
+    root.title("A Title")
+    g = GUI(root, eventhandler)
+    
+    eventhandler.start()
+    
+    root.mainloop()
+
+STATECHART:
+    A [DS]
+    B
+
+TRANSITION:
+    S: A
+    N: B
+    E: on
+    O: print "A -> B"
+       g.setLightBulbOn()
+
+TRANSITION:
+    S: B
+    N: B
+    E: on
+    O: print "B (self-loop)"
+
+TRANSITION:
+    S: B
+    N: A
+    E: off
+    O: print "B -> A"
+       g.setLightBulbOff()
+
+TRANSITION:
+    S: A
+    N: A
+    E: off
+    O: print "A (self-loop)"
