@@ -1,7 +1,6 @@
 INITIALIZER:
     from Tkinter import *
     from DWatchGUI import DWatchGUI
-  
 
     root = Tk()
     root.title("Super Cool Clock")
@@ -24,8 +23,14 @@ STATECHART:
       Off [DS]
     Refresh [CS][DS]
       Time [DS]
-      Chrono    
-      
+      Chrono
+      Stop
+    EditTime [CS] [DS]
+      Off [DS]
+      OffDelay
+      On
+      OnDelay
+
 #TIME CONTROL 
 TRANSITION:
     S: Time.Run
@@ -47,6 +52,7 @@ TRANSITION:
     O: g.unsetIndiglo()
      
 #CHRONO CONTROL
+
 TRANSITION:
     S: Chrono.Off
     N: Chrono.On
@@ -69,7 +75,58 @@ TRANSITION:
     E: resetChrono
     O: g.resetChrono()
 
- 
+#EDIT CONTROL
+
+TRANSITION:
+    S: EditTime.Off
+    C: [INSTATE("Refresh.Time")]
+    N: EditTime.OnDelay
+    E: editTime
+
+TRANSITION:
+    S: EditTime.OnDelay
+    N: EditTime.On
+    T: 1.5
+    O:  [EVENT("editTimeEvent")]
+        print "Editing time"
+
+TRANSITION:
+    S: EditTime.OnDelay
+    C: [INSTATE("Refresh.Time")]
+    N: EditTime.Off
+    E: released
+
+TRANSITION:
+    S: EditTime.On
+    N: EditTime.On
+    E: initChrono
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditTime.On
+    N: EditTime.On
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditTime.On
+    C: [INSTATE("Refresh.Stop")]
+    N: EditTime.OffDelay
+    E: editTime
+
+TRANSITION:
+    S: EditTime.OffDelay
+    N: EditTime.Off
+    T: 2
+    O: [EVENT("editTimeEvent")]
+       print "Editing done"
+
+TRANSITION:
+    S: EditTime.OffDelay
+    C: [INSTATE("Refresh.Stop")]
+    N: EditTime.On
+    E: released
+    
 #REFRESH CONTROL
 
 TRANSITION:
