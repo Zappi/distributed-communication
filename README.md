@@ -9,3 +9,7 @@
 ### Task 2
 
 https://github.com/Zappi/distributed-communication/tree/master/task2
+
+### Task 3
+
+https://github.com/Zappi/distributed-communication/tree/master/task3/digital-watch

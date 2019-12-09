@@ -1,7 +1,5 @@
-This is the third assignment
-
-Install dependencies with `python -m pip install -r requirements.txt`.
+### Task 3
 
 Set python enviromnent with `source .env`
 
-Then run `svm digital-watch.des`
+After environment has been set the project can be run with `svm digital-watch.des`
