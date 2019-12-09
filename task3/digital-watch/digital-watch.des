@@ -30,7 +30,12 @@ STATECHART:
       OffDelay
       On
       OnDelay
-
+    Alarm
+      Off [DS]
+      OffDelay
+      On
+      OnDelay
+ 
 #TIME CONTROL 
 TRANSITION:
     S: Time.Run
@@ -126,7 +131,75 @@ TRANSITION:
     C: [INSTATE("Refresh.Stop")]
     N: EditTime.On
     E: released
+
+#ALARM
+
+TRANSITION:
+    S: Alarm.Off
+    N: Alarm.OnDelay
+    O: [INSTATE("Refresh.Time")]
+    E: setAlarm
+
+TRANSITION:
+    S: Alarm.Off
+    N: Alarm.OnDelay
+    O: [INSTATE("Refresh.Alarm")]
+    E: setAlarm
+
+TRANSITION:
+    S: Alarm.OnDelay
+    N: Alarm.On
+    T: 1.5
+
+TRANSITION:
+    S: Alarm.OnDelay
+    C: [INSTATE("Refresh.Time")]
+    N: Alarm.Off
+    E: onoff
+    O: [EVENT("alarmModeChange")]
+
+TRANSITION:
+    S: Alarm.OnDelay
+    C: [INSTATE("Refresh.Alarm")]
+    N: Alarm.Off
+    E: onoff
+    O: [EVENT("alarmModeChange")]
+
+TRANSITION:
+    S: Alarm.On
+    C: [INSTATE("Refresh.Alarm")]
+    N: Alarm.On
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: Alarm.On
+    C: [INSTATE("Refresh.Alarm")]
+    N: Alarm.On
+    E: editTime
+    O: g.selectNext()
+
+TRANSITION:
+    S: Alarm.On
+    N: Alarm.OffDelay
+    E: finishEdit
+
+TRANSITION:
+    S: Alarm.OffDelay
+    N: Alarm.Off
+    T: 2
+    O: g.stopSelection()
     
+TRANSITION:
+    S: Alarm.OffDelay
+    N: Alarm.On
+    E: released
+
+TRANSITION:
+    S: Alarm.Off
+    N: Alarm.Off
+    O: [EVENT("alarmModeChange")]
+
 #REFRESH CONTROL
 
 TRANSITION:
