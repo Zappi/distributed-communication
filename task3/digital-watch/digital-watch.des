@@ -24,13 +24,14 @@ STATECHART:
     Refresh [CS][DS]
       Time [DS]
       Chrono
+      Alarm
       Stop
     EditTime [CS] [DS]
       Off [DS]
       OffDelay
       On
       OnDelay
-    Alarm
+    Alarm [CS] [DS]
       Off [DS]
       OffDelay
       On
@@ -92,8 +93,8 @@ TRANSITION:
     S: EditTime.OnDelay
     N: EditTime.On
     T: 1.5
-    O:  [EVENT("editTimeEvent")]
-        print "Editing time"
+    O: [EVENT("editTimeEvent")]
+       print "Editing time"
 
 TRANSITION:
     S: EditTime.OnDelay
@@ -141,17 +142,6 @@ TRANSITION:
     E: setAlarm
 
 TRANSITION:
-    S: Alarm.Off
-    N: Alarm.OnDelay
-    O: [INSTATE("Refresh.Alarm")]
-    E: setAlarm
-
-TRANSITION:
-    S: Alarm.OnDelay
-    N: Alarm.On
-    T: 1.5
-
-TRANSITION:
     S: Alarm.OnDelay
     C: [INSTATE("Refresh.Time")]
     N: Alarm.Off
@@ -163,6 +153,12 @@ TRANSITION:
     C: [INSTATE("Refresh.Alarm")]
     N: Alarm.Off
     E: onoff
+    O: [EVENT("alarmModeChange")]
+
+TRANSITION:
+    S: Alarm.OnDelay
+    N: Alarm.On
+    T: 1.5
     O: [EVENT("alarmModeChange")]
 
 TRANSITION:
@@ -189,11 +185,6 @@ TRANSITION:
     N: Alarm.Off
     T: 2
     O: g.stopSelection()
-    
-TRANSITION:
-    S: Alarm.OffDelay
-    N: Alarm.On
-    E: released
 
 TRANSITION:
     S: Alarm.Off
@@ -225,6 +216,27 @@ TRANSITION:
     N: Refresh.Time
     E: changeMode
     O: g.refreshTimeDisplay()
+
+TRANSITION:
+    S: Refresh.Alarm
+    N: Refresh.Alarm
+    T: 0.05
+    O: g.refreshAlarmDisplay()
+
+TRANSITION:
+    S: Refresh.Time
+    N: Refresh.Alarm
+    E: alarmModeChange
+    O: g.refreshAlarmDisplay()
+       g.setAlarm()
+
+TRANSITION:
+    S: Refresh.Alarm
+    N: Refresh.Time
+    E: alarmModeChange
+    O:  g.refreshTimeDisplay()
+        g.stopSelection()
+        g.setAlarm()
 
 TRANSITION:
     S: Refresh.Time
